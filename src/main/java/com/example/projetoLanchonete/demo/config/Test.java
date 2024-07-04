@@ -4,16 +4,20 @@ import com.example.projetoLanchonete.demo.entities.Client;
 import com.example.projetoLanchonete.demo.entities.Order;
 import com.example.projetoLanchonete.demo.entities.Product;
 import com.example.projetoLanchonete.demo.entities.enums.Category;
-import com.example.projetoLanchonete.demo.entities.enums.Status;
 import com.example.projetoLanchonete.demo.repository.ClientRepository;
 import com.example.projetoLanchonete.demo.repository.OrderRepository;
 import com.example.projetoLanchonete.demo.repository.ProductRepository;
+import com.example.projetoLanchonete.demo.service.PaymentService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 
-import java.time.Instant;
 import java.util.Arrays;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class Test implements CommandLineRunner {
@@ -27,27 +31,30 @@ public class Test implements CommandLineRunner {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    PaymentService paymentService;
 
     @Override
     public void run(String... args) throws Exception {
         clientRepository.deleteAll();
         productRepository.deleteAll();
         orderRepository.deleteAll();
+//        String orderId, Status status, Instant orderDate, Client clients, String descricao
+        Order newOrder = new Order("1", com.example.projetoLanchonete.demo.entities.enums.Status.RECEBIDO,
+                new Client("19764514774", "Gustavo", "gustavolyra23@gmail.com"));
+
+        Product newProduct = new Product("1", 20.0, Category.LANCHE, "Hamburger");
+        Product newProduct2 = new Product("2", 30.0, Category.BEBIDA, "Coca-Cola");
+
+        productRepository.saveAll(Arrays.asList(newProduct, newProduct2, newProduct));
+
+        newOrder.getProducts().addAll(Arrays.asList(newProduct, newProduct2));
+        newOrder.setOrderPrice();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        System.out.println(gson.toJson(newOrder));
 
 
-        Client c1 = new Client("19764514774", "Gustavo", "gustavolyra@gmail.com");
-        clientRepository.save(c1);
-        Order order1 = new Order(null, Status.RECEBIDO, Instant.now());
-        Product product1 = new Product(null, 20.0, Category.LANCHE);
-        Product product2 = new Product(null, 30.0, Category.LANCHE);
-        order1.getProducts().addAll(Arrays.asList(product1, product2));
-        c1.getOrders().add(order1);
-        order1.getClients().add(c1);
-
-        productRepository.save(product1);
-        orderRepository.save(order1);
-        clientRepository.save(c1);
-
-        System.out.println(order1.getOrderPrice());
     }
 }
+
+

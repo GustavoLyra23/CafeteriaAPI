@@ -13,10 +13,10 @@ public class Client implements Serializable {
 
     @Id
     private String cpf;
-    @DBRef
     private List<Order> orders = new ArrayList<>();
     private String nome;
     private String email;
+
 
     public Client(String cpf, String nome, String email) {
         this.cpf = cpf;
@@ -55,4 +55,5 @@ public class Client implements Serializable {
     public void setEmail(String email) {
         this.email = email;
     }
+
 }

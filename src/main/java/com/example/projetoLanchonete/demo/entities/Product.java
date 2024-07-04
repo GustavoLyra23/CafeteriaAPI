@@ -13,13 +13,14 @@ public class Product implements Serializable {
     @Id
     private String id;
     private Category category;
+    private String name;
     private double price;
 
-    public Product(String id, double price, Category category) {
+    public Product(String id, double price, Category category, String name) {
         this.id = id;
         this.price = price;
         this.category = category;
-
+        this.name = name;
     }
 
     public String getId() {
@@ -53,6 +54,14 @@ public class Product implements Serializable {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setPrice(double price) {

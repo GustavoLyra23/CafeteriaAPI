@@ -2,6 +2,7 @@ package com.example.projetoLanchonete.demo.resources.exception;
 
 import com.example.projetoLanchonete.demo.service.exception.ObjectAlreadyExistsException;
 import com.example.projetoLanchonete.demo.service.exception.ObjectNotFoundException;
+import com.example.projetoLanchonete.demo.service.exception.PaymentException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ public class ResourceExceptionHandler {
     public ResponseEntity<StandardError> objectNotFound(ObjectNotFoundException e, HttpServletRequest request) {
 
         HttpStatus status = HttpStatus.NOT_FOUND;
-        StandardError err = new StandardError(System.currentTimeMillis(), status.value(), "Not Found", e.getMessage(),request.getRequestURI() );
+        StandardError err = new StandardError(System.currentTimeMillis(), status.value(), "Not Found", e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
 
@@ -25,5 +26,13 @@ public class ResourceExceptionHandler {
         StandardError err = new StandardError(System.currentTimeMillis(), status.value(), "Conflict", e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
+
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<StandardError> payment(PaymentException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err = new StandardError(System.currentTimeMillis(), status.value(), "Bad request", e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
 
 }

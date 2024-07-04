@@ -2,13 +2,11 @@ package com.example.projetoLanchonete.demo.entities;
 
 
 import com.example.projetoLanchonete.demo.entities.enums.Status;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -18,20 +16,23 @@ public class Order implements Serializable {
 
     @Id
     private String orderId;
-    @DBRef
-    @JsonIgnore
-    private List<Client> clients = new ArrayList<>();
+    private Client client;
     private List<Product> products = new ArrayList<>();
     private Status status;
-    private Instant orderDate;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String paymentLink;
+    private Double orderPrice;
+    private String paymentStatus;
+    private String paymentId;
+
 
     public Order() {
     }
 
-    public Order(String orderId, Status status, Instant orderDate) {
+    public Order(String orderId, Status status, Client clients) {
         this.orderId = orderId;
         this.status = status;
-        this.orderDate = orderDate;
+        this.client = clients;
     }
 
 
@@ -43,12 +44,12 @@ public class Order implements Serializable {
         this.orderId = orderId;
     }
 
-    public List<Client> getClients() {
-        return clients;
+    public Client getClient() {
+        return client;
     }
 
-    public void setClients(List<Client> clients) {
-        this.clients = clients;
+    public void setOrderPrice(Double orderPrice) {
+        this.orderPrice = orderPrice;
     }
 
     public List<Product> getProducts() {
@@ -72,9 +73,50 @@ public class Order implements Serializable {
         this.products = products;
     }
 
+
     public Double getOrderPrice() {
         return products.stream()
                 .map(a -> a.getPrice())
                 .reduce(0.0, Double::sum);
+    }
+
+    public void setOrderPrice() {
+        this.orderPrice = getOrderPrice();
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public String getPaymentLink() {
+        return paymentLink;
+    }
+
+    public void setPaymentLink(String paymentLink) {
+        this.paymentLink = paymentLink;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public String getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(String paymentId) {
+        this.paymentId = paymentId;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 }
