@@ -42,18 +42,4 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-
-    public void updatePaymentStatus(String id) throws Exception {
-        PaymentService paymentService = new PaymentService();
-        Order order = findById(id);
-        String paymentId = order.getPaymentId();
-        var statusPayment = paymentService.getPaymentStatus(paymentId);
-        order.setPaymentStatus(statusPayment);
-
-        if (!Objects.equals(order.getPaymentStatus(), "WAITING_PAYMENT")) {
-            orderRepository.save(order);
-        } else {
-            throw new PaymentException("WAITING_PAYMENT");
-        }
-    }
 }

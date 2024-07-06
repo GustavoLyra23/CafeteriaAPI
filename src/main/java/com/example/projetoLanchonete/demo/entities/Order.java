@@ -23,7 +23,6 @@ public class Order implements Serializable {
     private String paymentLink;
     private Double orderPrice;
     private String paymentStatus;
-    private String paymentId;
 
 
     public Order() {
@@ -33,8 +32,8 @@ public class Order implements Serializable {
         this.orderId = orderId;
         this.status = status;
         this.client = clients;
-    }
 
+    }
 
     public String getOrderId() {
         return orderId;
@@ -106,14 +105,6 @@ public class Order implements Serializable {
 
     public String getPaymentStatus() {
         return paymentStatus;
-    }
-
-    public String getPaymentId() {
-        return paymentId;
-    }
-
-    public void setPaymentId(String paymentId) {
-        this.paymentId = paymentId;
     }
 
     public void setPaymentStatus(String paymentStatus) {

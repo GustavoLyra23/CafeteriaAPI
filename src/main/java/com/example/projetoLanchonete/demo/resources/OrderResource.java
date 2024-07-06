@@ -3,7 +3,11 @@ package com.example.projetoLanchonete.demo.resources;
 import com.example.projetoLanchonete.demo.entities.Order;
 import com.example.projetoLanchonete.demo.service.OrderService;
 import com.example.projetoLanchonete.demo.service.PaymentService;
+import com.mercadopago.client.payment.PaymentClient;
+import com.mercadopago.exceptions.MPException;
+import com.mercadopago.resources.payment.Payment;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,24 +32,25 @@ public class OrderResource {
 
     @PostMapping(value = "v1/create")
     public ResponseEntity<String> create(@RequestBody Order order) throws Exception {
-        String paymentLink = "";
-        var paymentData = paymentService.createPaymentLink(order.getOrderPrice());
-        String[] data = paymentData.split(";");
-        paymentLink = data[0];
+        var paymentData = paymentService.createPaymentLink(order.getOrderPrice(), order.getOrderId());
         String paymentStatus = "WAITING_PAYMENT";
         order.setPaymentStatus(paymentStatus);
-        order.setPaymentLink(paymentLink);
-        order.setPaymentId(data[1]);
+        order.setPaymentLink(paymentData);
         orderService.insert(order);
-        return ResponseEntity.ok().body(paymentLink);
+        return ResponseEntity.ok().body(paymentData);
     }
 
-    @PutMapping(value = "v1/updatePaymentStatus/{id}")
-    public ResponseEntity<Void> updatePaymentStatus(@PathVariable String id) throws Exception {
-        orderService.updatePaymentStatus(id);
-        return ResponseEntity.ok().build();
+    @GetMapping("/status/{preferenceId}")
+    public ResponseEntity<?> consultarStatusPorPreferenceId(@PathVariable Long preferenceId) {
+        try {
+            var payment = paymentService.getPaymentStatus(preferenceId);
+            return ResponseEntity.ok().body(payment);
+        } catch (MPException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao consultar status do pagamento");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
-
-
 }
 
