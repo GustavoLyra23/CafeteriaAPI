@@ -1,13 +1,10 @@
 package com.example.projetoLanchonete.demo.resources;
 
 import com.example.projetoLanchonete.demo.entities.Order;
+import com.example.projetoLanchonete.demo.entities.enums.Status;
 import com.example.projetoLanchonete.demo.service.OrderService;
 import com.example.projetoLanchonete.demo.service.PaymentService;
-import com.mercadopago.client.payment.PaymentClient;
-import com.mercadopago.exceptions.MPException;
-import com.mercadopago.resources.payment.Payment;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +35,12 @@ public class OrderResource {
         order.setPaymentLink(paymentData);
         orderService.insert(order);
         return ResponseEntity.ok().body(paymentData);
+    }
+
+    @PutMapping(value = "v1/updateOrderStatus/{id}/status")
+    public ResponseEntity<String> updateStatus(@PathVariable String id, @RequestParam Status status) throws Exception {
+        orderService.updateOrderStatus(id, status);
+        return ResponseEntity.ok().build();
     }
 }
 

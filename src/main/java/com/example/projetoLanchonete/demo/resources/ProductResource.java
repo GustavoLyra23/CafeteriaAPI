@@ -30,5 +30,4 @@ public class ProductResource {
         List<Product> products = productService.findByCategory(category);
         return ResponseEntity.ok().body(products);
     }
-
 }
