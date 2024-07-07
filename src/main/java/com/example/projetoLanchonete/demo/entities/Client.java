@@ -12,7 +12,6 @@ public class Client implements Serializable {
 
     @Id
     private String cpf;
-    private List<Order> orders = new ArrayList<>();
     private String nome;
     private String email;
 
@@ -29,14 +28,6 @@ public class Client implements Serializable {
 
     public void setCpf(String cpf) {
         this.cpf = cpf;
-    }
-
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
     }
 
     public String getNome() {

@@ -39,7 +39,7 @@ public class PaymentService {
 
         PreferenceRequest request = PreferenceRequest.builder()
                 .items(Collections.singletonList(itemRequest))
-                .notificationUrl("https://6e52-187-61-91-165.ngrok-free.app/v1/webhook")
+                .notificationUrl("https://08f6-187-61-91-67.ngrok-free.app/v1/webhook")
                 .metadata(metadata)
                 .build();
 
@@ -70,8 +70,6 @@ public class PaymentService {
                 if (data != null && data.containsKey("id")) {
                     String paymentId = data.get("id").toString();
                     String orderId = getOrderIdFromPayment(paymentId);
-                    System.out.println("Order ID: " + orderId);
-                    System.out.println(paymentId);
                     return orderId + ";" + paymentId;
                 } else {
                 }
