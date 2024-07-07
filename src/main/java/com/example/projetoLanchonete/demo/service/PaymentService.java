@@ -1,5 +1,6 @@
 package com.example.projetoLanchonete.demo.service;
 
+import com.example.projetoLanchonete.demo.service.exception.PaymentException;
 import com.mercadopago.MercadoPagoConfig;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.client.preference.PreferenceClient;
@@ -21,6 +22,7 @@ public class PaymentService {
     @Value("${mercadopago.access_token}")
     private String accessToken;
 
+
     public String createPaymentLink(Double amount, String id) throws Exception {
         MercadoPagoConfig.setAccessToken(accessToken);
 
@@ -37,22 +39,11 @@ public class PaymentService {
 
         PreferenceRequest request = PreferenceRequest.builder()
                 .items(Collections.singletonList(itemRequest))
-                .notificationUrl("https://6e52-187-61-91-165.ngrok-free.app/webhook")
+                .notificationUrl("https://6e52-187-61-91-165.ngrok-free.app/v1/webhook")
                 .metadata(metadata)
                 .build();
 
         Preference preference = client.create(request);
-        System.out.println("Preference ID: " + preference.getId());
-        System.out.println("Metadata: " + preference.getMetadata());
-        System.out.println("Client ID: " + preference.getClientId());
-        System.out.println("Auto Return: " + preference.getAutoReturn());
-        System.out.println("Additional Info: " + preference.getAdditionalInfo());
-        System.out.println("Collector ID: " + preference.getCollectorId());
-        System.out.println("Items: " + preference.getItems());
-        System.out.println("Marketplace: " + preference.getMarketplace());
-        System.out.println("Response Content: " + preference.getResponse().getContent());
-        System.out.println("Response Headers: " + preference.getResponse().getHeaders());
-
         return preference.getInitPoint();
     }
 
@@ -61,5 +52,34 @@ public class PaymentService {
         PaymentClient client = new PaymentClient();
         Payment payment = client.get(paymentId);
         return payment.getStatus();
+    }
+
+    public String getOrderIdFromPayment(String paymentId) throws Exception {
+        MercadoPagoConfig.setAccessToken(accessToken);
+        PaymentClient client = new PaymentClient();
+        Payment payment = client.get(Long.parseLong(paymentId));
+
+        Map<String, Object> metadata = payment.getMetadata();
+        return metadata != null ? (String) metadata.get("order_id") : null;
+    }
+
+    public String handleWebHook(Map<String, Object> payload) {
+        try {
+            if (payload != null && payload.containsKey("data")) {
+                Map<String, Object> data = (Map<String, Object>) payload.get("data");
+                if (data != null && data.containsKey("id")) {
+                    String paymentId = data.get("id").toString();
+                    String orderId = getOrderIdFromPayment(paymentId);
+                    System.out.println("Order ID: " + orderId);
+                    System.out.println(paymentId);
+                    return orderId + ";" + paymentId;
+                } else {
+                }
+            } else {
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

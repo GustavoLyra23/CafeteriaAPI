@@ -39,18 +39,5 @@ public class OrderResource {
         orderService.insert(order);
         return ResponseEntity.ok().body(paymentData);
     }
-
-    @GetMapping("/status/{preferenceId}")
-    public ResponseEntity<?> consultarStatusPorPreferenceId(@PathVariable Long preferenceId) {
-        try {
-            var payment = paymentService.getPaymentStatus(preferenceId);
-            return ResponseEntity.ok().body(payment);
-        } catch (MPException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao consultar status do pagamento");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
 

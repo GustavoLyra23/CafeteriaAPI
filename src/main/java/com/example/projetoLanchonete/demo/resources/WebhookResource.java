@@ -1,8 +1,14 @@
 package com.example.projetoLanchonete.demo.resources;
 
+import com.example.projetoLanchonete.demo.entities.Order;
+import com.example.projetoLanchonete.demo.entities.enums.Status;
+import com.example.projetoLanchonete.demo.service.OrderService;
+import com.example.projetoLanchonete.demo.service.PaymentService;
+import com.example.projetoLanchonete.demo.service.exception.PaymentException;
 import com.mercadopago.MercadoPagoConfig;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.resources.payment.Payment;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,41 +19,30 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/webhook")
+@RequestMapping("v1/webhook")
 public class WebhookResource {
 
-    @Value("${mercadopago.access_token}")
-    private String accessToken;
+    @Autowired
+    private PaymentService paymentService;
+
+    @Autowired
+    private OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<Void> handleWebhook(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<Void> handleWebhook(@RequestBody Map<String, Object> payload) throws Exception {
         try {
-            if (payload != null && payload.containsKey("data")) {
-                Map<String, Object> data = (Map<String, Object>) payload.get("data");
-                if (data != null && data.containsKey("id")) {
-                    String paymentId = data.get("id").toString();
-                    String orderId = getOrderIdFromPayment(paymentId);
-                    System.out.println("Order ID: " + orderId);
-                    System.out.println(paymentId);
-
-                } else {
-                    System.err.println("Webhook payload is missing 'id' field in 'data'.");
-                }
-            } else {
-                System.err.println("Webhook payload is missing 'data' field.");
+            String[] paymentData = paymentService.handleWebHook(payload).split(";");
+            var paymentStatus = paymentService.getPaymentStatus(Long.valueOf(paymentData[1]));
+            if (paymentStatus.equals("approved")) {
+                Order order = orderService.findById(paymentData[0]);
+                order.setPaymentStatus("approved");
+                order.setStatus(Status.EM_PREPARACAO);
+                orderService.update(order);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
+            throw new PaymentException(e.getMessage());
         }
         return ResponseEntity.ok().build();
     }
 
-    private String getOrderIdFromPayment(String paymentId) throws Exception {
-        MercadoPagoConfig.setAccessToken(accessToken);
-        PaymentClient client = new PaymentClient();
-        Payment payment = client.get(Long.parseLong(paymentId));
-
-        Map<String, Object> metadata = payment.getMetadata();
-        return metadata != null ? (String) metadata.get("order_id") : null;
-    }
 }
